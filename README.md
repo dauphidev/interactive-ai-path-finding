@@ -1,5 +1,5 @@
 # interactive-ai-search-algorithms
-An interactive 2D grid visualization for AI **path search** algorithms. 
+An interactive 2D grid visualization for AI **path finding** algorithms. 
 
 ## How does it work? 🖱️
 * Draw obstacles by holding left click.
