@@ -3,8 +3,8 @@ An interactive 2D grid visualization for AI **path finding** algorithms.
 
 ## How does it work? 🖱️
 * Draw obstacles by holding left click.
-* Run the path search algorithm
-* Reset obstacles/search with a mouse middle click.
+* Run the path finding algorithm by right clicking.
+* Reset obstacles/search results with a mouse middle click.
 
 ## Running the application
 You will need Python 3.x installed in your machine and [pygame](https://www.pygame.org).<br>
