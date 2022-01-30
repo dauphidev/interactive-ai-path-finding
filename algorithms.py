@@ -1,4 +1,5 @@
 from dauphinetDS import PQmin
+import math
 
 class Point (object):
 
@@ -14,24 +15,35 @@ class Point (object):
     def __str__ (self):
         (i,j) = self.pos
         return "Posicao: ({},{}) , g(self) = {} , Path: {}".format(i,j,self.acc_cost, self.path)
-        
+
 
 class MapProblem (object):
     
 
-    def __init__ (self, width, height, obstacles, goal):
+    def __init__ (self, width, height, obstacles, goal, algo="UCS"):
 
         self.width = width
         self.height = height
         self.obstacles = obstacles
         self.goal = Point(goal)
         self.move_list = "UP DOWN LEFT RIGHT UP-LEFT UP-RIGHT DOWN-LEFT DOWN-RIGHT".split()
-
-    def cost (self, point, move):
-        if move in self.move_list[0:4]:
-            return 10 # Se for para lados ou norte/sul
+        if algo == "UCS":
+            self.h = lambda x : 0
         else:
-            return 14 # Se for na diagonal
+            self.h = self.euclid_dist
+        
+    # euclidian_distance_to_goal
+    def euclid_dist (self, pos):
+        return round(math.sqrt(((pos[0]-self.goal.pos[0])**2 + (pos[1]-self.goal.pos[1])**2)) * 10)
+
+
+    # ALTERADO PARA A*
+    def cost (self, point, move):
+        # point n e usado?
+        if move in self.move_list[0:4]:
+            return 10  # Se for para lados ou norte/sul
+        else:
+            return 14  # Se for na diagonal
 
     def convert (self, pos, move):
         (i,j) = pos
@@ -88,7 +100,7 @@ class MapProblem (object):
         p_moves = self.moves(point)
         p_points = []
         for move in p_moves:
-            p_points.append( Point (self.convert(point.pos, move), point.acc_cost + self.cost(point, move), point.path))
+            p_points.append( Point (self.convert(point.pos, move), point.acc_cost - self.h(point.pos) + self.cost(point, move) + self.h(self.convert(point.pos, move)), point.path))
         return p_points
 
     def start (self, s_pos):
@@ -99,7 +111,6 @@ class MapProblem (object):
         self.visited = []
 
     def next_iteration (self):
-        print("next iteration")
 
         if self.frontier.elements != []:
             smallest = self.frontier.pop_smallest()

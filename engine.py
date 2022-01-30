@@ -1,11 +1,16 @@
 import pygame, math, random
 
-from TEST_UCS import *
+#from TEST_UCS import *
+from TEST_UCS_ASTAR import *
 
 def redraw_game_window():
     window.fill((195,181,181))
     paint_cells()
     draw_grid()
+    if finished_searching:
+        create_text_rect(f"Search statistics with {algorithm}", (300,520))
+        create_text_rect(f"Shortest path cost: {solution.acc_cost}", (50,540))
+        
     pygame.display.update()
 
 def draw_grid():
@@ -19,6 +24,12 @@ def draw_cell(raw_pos, color, filled=True):
     else:
         pygame.draw.rect(window, color, pygame.Rect((raw_pos[0]*CELL_SIZE,raw_pos[1]*CELL_SIZE), (CELL_SIZE, CELL_SIZE)), width = 1)
 
+def create_text_rect (text, pos):
+    text = DEFAULT_FONT.render(text, True, (0,0,0))
+    textRect = text.get_rect()
+    textRect.center = (pos[0], pos[1])
+    window.blit(text, textRect)
+
 def translate (pos):
     i,j = pos
     new_pos = (i//CELL_SIZE, j//CELL_SIZE)
@@ -29,21 +40,29 @@ def translate (pos):
   
 pygame.init()
 
+WINDOW_WIDTH = 600
+WINDOW_HEIGHT = 650
 
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT  = 500
 
-window = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+SIM_WIDTH = 500
+SIM_HEIGHT = SIM_WIDTH
+
+window = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
+DEFAULT_FONT = pygame.font.Font('freesansbold.ttf', 16)
+pygame.display.set_caption('AI Search Algorithms (Interactive Studio)')
 
 map_size = (25,25)
 
-CELL_SIZE = SCREEN_WIDTH // map_size[0] # we assume that map_size width == height
+CELL_SIZE = SIM_WIDTH // map_size[0] # we assume that map_size width == height
+
+algorithm = "Astar"
+#start = (3,12)
+#goal = (20,12)
+start = (5,5)
+goal = (16,16)
 
 obstacles = []
-start = (3,12)
-goal = (20,12)
-
-prob = MapProblem(map_size[0],map_size[1],obstacles, goal)
+prob = MapProblem(map_size[0],map_size[1],obstacles, goal, algo=algorithm)
 
 solution = None
 
@@ -58,6 +77,8 @@ def paint_cells ():
         for j in range(0,map_size[1]):
             pos = (i,j)
             if not draw_mode:
+                if (i,j) in [x.pos for x in prob.frontier.elements]:
+                    draw_cell(pos, (230, 205, 99))
                 if (i,j) in prob.visited:
                     draw_cell(pos, (218,178,85))
                 if finished_searching:
@@ -88,7 +109,9 @@ while run:
 
     if draw_mode:
         if left_click_pressed:
-            obstacles.append(translate(mouse_pos))
+            pos = translate(mouse_pos)
+            if pos not in obstacles:
+                obstacles.append(pos)
         elif right_click_pressed:
             prob.obstacles = obstacles
             prob.start(start)
@@ -98,13 +121,17 @@ while run:
         s = prob.next_iteration()
         if s != Point((-1,-1)):
             solution = s
-            print(s)
+            #print(s)
             finished_searching = True
             
             
     if middle_click_pressed:
         obstacles = []
+        prob.obstacles = []
+        prob.visited = []
         draw_mode = True
+        finished_searching = False
+        solution = None
 
     
     redraw_game_window()
