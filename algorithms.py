@@ -1,4 +1,4 @@
-from dauphinetDS import PQmin
+from aux_data_structures import PQmin
 import math
 
 class Point (object):

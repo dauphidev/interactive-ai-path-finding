@@ -1,7 +1,6 @@
 import pygame, math, random
 
-#from TEST_UCS import *
-from TEST_UCS_ASTAR import *
+from algorithms import *
 
 def redraw_game_window():
     window.fill((195,181,181))
